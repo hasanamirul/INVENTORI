@@ -41,6 +41,9 @@
 </head>
 
 <body>
+    <h3>Dinas Pemberdayaan Masyarakat, Desa, Kependudukan dan Pencatatan Sipil</h3>
+    <h3>Provinsi Jawa Tengah</h3>
+    <hr>
     <h2> LAPORAN BARANG</h2>
     <br>
 
@@ -49,6 +52,7 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>Gambar</th>
                 <th>Nama Barang</th>
                 <th>Jumlah Masuk</th>
                 <th>Tanggal Masuk</th>
@@ -59,6 +63,13 @@
             @foreach ($barangMasuks as $masuk)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
+                    <td>
+                        @if(!empty($masuk->barang->gambar))
+                            <img src="{{ public_path('storage/' . $masuk->barang->gambar) }}" style="width:60px;height:60px;object-fit:cover;">
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>{{ $masuk->barang->nama ?? '-' }}</td>
                     <td>{{ $masuk->jumlah }}</td>
                     <td>{{ $masuk->tanggal_masuk }}</td>
@@ -77,6 +88,7 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>Gambar</th>
                 <th>Nama Barang</th>
                 <th>Jumlah Keluar</th>
                 <th>Tanggal Keluar</th>
@@ -87,6 +99,13 @@
             @foreach ($barangKeluars as $keluar)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
+                    <td>
+                        @if(!empty($keluar->barang->gambar))
+                            <img src="{{ public_path('storage/' . $keluar->barang->gambar) }}" style="width:60px;height:60px;object-fit:cover;">
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>{{ $keluar->barang->nama ?? '-' }}</td>
                     <td>{{ $keluar->jumlah }}</td>
                     <td>{{ $keluar->tanggal_keluar }}</td>

@@ -9,11 +9,13 @@
         </p>
     </header>
 
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
+    @if (Route::has('verification.send'))
+        <form id="send-verification" method="post" action="{{ route('verification.send') }}">
+            @csrf
+        </form>
+    @endif
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
 
@@ -28,7 +30,7 @@
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+            @if (Route::has('verification.send') && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                 <div>
                     <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
                         {{ __('Your email address is unverified.') }}
@@ -45,6 +47,29 @@
                     @endif
                 </div>
             @endif
+        </div>
+
+        <div>
+            <x-input-label for="nip" :value="__('NIP')" />
+            <x-text-input id="nip" name="nip" type="text" class="mt-1 block w-full" :value="old('nip', $user->nip)" />
+            <x-input-error class="mt-2" :messages="$errors->get('nip')" />
+        </div>
+
+        <div>
+            <x-input-label for="bidang" :value="__('Bidang')" />
+            <x-text-input id="bidang" name="bidang" type="text" class="mt-1 block w-full" :value="old('bidang', $user->bidang)" />
+            <x-input-error class="mt-2" :messages="$errors->get('bidang')" />
+        </div>
+
+        <div>
+            <x-input-label for="photo" :value="__('Foto Profil')" />
+            <input id="photo" name="photo" type="file" accept="image/*" class="mt-1 block w-full" />
+            @if($user->photo)
+                <div class="mt-2">
+                    <img src="{{ asset('storage/' . $user->photo) }}" alt="profile" style="height:80px; width:80px; object-fit:cover; border-radius:50%;" />
+                </div>
+            @endif
+            <x-input-error class="mt-2" :messages="$errors->get('photo')" />
         </div>
 
         <div class="flex items-center gap-4">

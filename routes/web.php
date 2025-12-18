@@ -10,6 +10,12 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\PasswordController as UserPasswordController;
 
 // =====================
 // Redirect root -> login
@@ -26,6 +32,18 @@ Route::controller(LoginController::class)->group(function () {
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });
+
+// =====================
+// Registration + Password Reset
+// =====================
+Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('register', [RegisteredUserController::class, 'store']);
+
+Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+
+Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
 // =====================
 // Semua route butuh login
@@ -62,4 +80,25 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // =====================
 Route::prefix('user')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
+});
+
+// Profile routes (for authenticated users)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // update password from profile
+    Route::put('/user/password', [UserPasswordController::class, 'update'])->name('password.update');
+});
+
+// Admin user management
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', AdminUserController::class);
+});
+
+// Local-only test email routes (do not expose in production). Require auth so only logged-in devs can use it.
+// limit to admin users only to avoid accidental exposure
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/test-email', [\App\Http\Controllers\MailTestController::class, 'showForm'])->name('test.email.form');
+    Route::post('/test-email', [\App\Http\Controllers\MailTestController::class, 'sendTest'])->name('test.email.send');
 });

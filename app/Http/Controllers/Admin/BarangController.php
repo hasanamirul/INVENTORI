@@ -9,6 +9,7 @@ use App\Models\KategoriBarang;
 use App\Models\BarangMasuk;
 use App\Models\BarangKeluar; // Import model BarangMasuk
 use Illuminate\Support\Carbon; // Import Carbon untuk tanggal
+use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
@@ -48,20 +49,26 @@ class BarangController extends Controller
             // 'tanggal' tidak perlu divalidasi karena kita ambil tanggal hari ini
             'status' => 'nullable|string|max:50',
             'keterangan' => 'nullable|string',
+            'gambar' => 'nullable|image|max:2048',
         ]);
-
-        // 1. Buat Barang baru
-        $barang = Barang::create([
+        // Prepare data
+        $data = [
             'nama_barang' => $validated['nama_barang'],
             'kategori_id' => $validated['kategori_id'],
             'satuan' => $validated['satuan'],
             'jumlah' => $validated['jumlah'],
-            // Set default/awal nilai
             'terpakai' => 0,
             'status' => $validated['status'] ?? 'Belum Terpakai',
             'keterangan' => $validated['keterangan'] ?? '-',
-            'tanggal' => Carbon::now()->toDateString(), // Tambahkan tanggal pembuatan barang
-        ]);
+            'tanggal' => Carbon::now()->toDateString(),
+        ];
+
+        if ($request->hasFile('gambar')) {
+            $data['gambar'] = $request->file('gambar')->store('barangs', 'public');
+        }
+
+        // 1. Buat Barang baru
+        $barang = Barang::create($data);
 
         // 2. Buat entri log BarangMasuk otomatis
         BarangMasuk::create([
@@ -99,11 +106,21 @@ class BarangController extends Controller
             'tanggal' => 'nullable|date',
             'status' => 'nullable|string|max:50',
             'keterangan' => 'nullable|string',
+            'gambar' => 'nullable|image|max:2048',
         ]);
         $barang = Barang::findOrFail($id);
 
         // Update data barang
-        $barang->update($validated);
+        $updateData = $validated;
+        if ($request->hasFile('gambar')) {
+            // hapus file lama jika ada
+            if ($barang->gambar && Storage::disk('public')->exists($barang->gambar)) {
+                Storage::disk('public')->delete($barang->gambar);
+            }
+            $updateData['gambar'] = $request->file('gambar')->store('barangs', 'public');
+        }
+
+        $barang->update($updateData);
 
         return redirect()->route('admin.barang.index')->with('success', 'Barang berhasil diupdate.');
     }

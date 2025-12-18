@@ -16,6 +16,7 @@ class Barang extends Model
         'kategori_id',
         'satuan',
         'jumlah',
+        'gambar',
         'terpakai',
         'tanggal',
         'status',

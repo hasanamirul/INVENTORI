@@ -14,7 +14,16 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    /*
+    |--------------------------------------------------------------------------
+    | Default Mailer
+    |--------------------------------------------------------------------------
+    |
+    | For local development, automatically use the "failover" mailer so
+    | SMTP failures fall back to the log driver instead of throwing 500s.
+    |
+    */
+    'default' => env('APP_ENV') === 'local' ? 'failover' : env('MAIL_MAILER', 'smtp'),
 
     /*
     |--------------------------------------------------------------------------

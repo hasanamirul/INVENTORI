@@ -37,7 +37,19 @@
     <!-- Chart -->
     <div class="card shadow-lg border-0 rounded-4 p-4 mb-5 animate-right">
         <h5 class="mb-4 text-center">Grafik Barang Masuk & Keluar per Bulan</h5>
-        <canvas id="barangChart" height="120"></canvas>
+        <div class="row">
+            <div class="col-12 col-lg-8">
+                <canvas id="barangChart" height="120"></canvas>
+            </div>
+            <div class="col-12 col-lg-4 mt-4 mt-lg-0 d-flex flex-column align-items-center justify-content-center">
+                <h6 class="mb-3">Rasio Masuk vs Keluar</h6>
+                <canvas id="ratioChart" style="max-width:220px;"></canvas>
+                <div class="mt-3 d-flex gap-2">
+                    <button id="toggleMasuk" class="btn btn-sm btn-outline-light" style="background:rgba(54,162,235,0.15);border:1px solid rgba(54,162,235,0.25)">Toggle Masuk</button>
+                    <button id="toggleKeluar" class="btn btn-sm btn-outline-light" style="background:rgba(255,99,132,0.12);border:1px solid rgba(255,99,132,0.22)">Toggle Keluar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Tabel Barang Masuk -->
@@ -135,6 +147,42 @@ new Chart(ctx, {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
         }
     }
+});
+
+// Ratio donut chart
+const totalMasuk = dataMasuk.reduce((a,b) => a + b, 0);
+const totalKeluar = dataKeluar.reduce((a,b) => a + b, 0);
+const ratioCtx = document.getElementById('ratioChart').getContext('2d');
+const ratioChart = new Chart(ratioCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Masuk','Keluar'],
+        datasets: [{
+            data: [totalMasuk, totalKeluar],
+            backgroundColor: ['rgba(54,162,235,0.9)','rgba(255,99,132,0.9)'],
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { enabled: true }
+        }
+    }
+});
+
+// Toggle datasets
+const barChart = Chart.getChart(ctx.canvas);
+document.getElementById('toggleMasuk').addEventListener('click', function(){
+    const ds = barChart.data.datasets[0];
+    ds.hidden = !ds.hidden;
+    barChart.update();
+});
+document.getElementById('toggleKeluar').addEventListener('click', function(){
+    const ds = barChart.data.datasets[1];
+    ds.hidden = !ds.hidden;
+    barChart.update();
 });
 
 // Animasi scroll masuk

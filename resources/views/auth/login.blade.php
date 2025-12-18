@@ -191,11 +191,7 @@
                 <span>Remember me</span>
             </div>
 
-            <div style="width:100%; text-align:center; margin-top:0.5rem;">
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="forgot-link">Forgot your password?</a>
-                @endif
-            </div>
+            
 
             <button type="submit" class="btn-login">Log In</button>
         </form>
